@@ -15,6 +15,6 @@ export class AuthController {
     @CurrentUser() user: UserDocument,
     @Res({ passthrough: true }) response: Response,
   ) {
-    return this.authSrv.login(user, response);
+    response.json(await this.authSrv.login(user, response));
   }
 }
