@@ -4,6 +4,7 @@ import { Response } from "express";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { ITokenPayload } from "./types";
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -24,6 +25,7 @@ export class AuthService {
     response.cookie("Authorization", token, {
       expires: expiresIn,
       httpOnly: true,
+      sameSite: "none",
     });
     return {
       token,

@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from "@nestjs/graphql";
+import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { UsersService } from "./users.service";
 import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
@@ -13,6 +13,7 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation(() => UserDocument)
+  @UseGuards(GqlAuthGuard)
   createUser(@Args("data") data: CreateUserInput) {
     return this.usersService.create(data);
   }
