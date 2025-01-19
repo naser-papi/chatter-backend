@@ -32,4 +32,11 @@ export class AuthService {
       token,
     };
   }
+
+  async logout(response: Response) {
+    response.clearCookie("Authorization");
+    return {
+      message: "Logged out",
+    };
+  }
 }

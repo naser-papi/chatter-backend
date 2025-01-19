@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { AbstractDocument } from "../../common/database/abstract.schema";
+import { AbstractDocument } from "@/common/database/abstract.schema";
 import { Field, ObjectType } from "@nestjs/graphql";
 
 @Schema({ versionKey: false, collection: "users" })
