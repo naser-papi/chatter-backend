@@ -9,7 +9,11 @@ export class ChatsService {
   constructor(private readonly chatsRepository: ChatsRepository) {}
 
   async create(createChatInput: CreateChatInput, userId: string) {
-    return this.chatsRepository.create({ ...createChatInput, userId });
+    return this.chatsRepository.create({
+      ...createChatInput,
+      messages: [],
+      userId,
+    });
   }
 
   async findAll(): Promise<ChatItemOutput[]> {
