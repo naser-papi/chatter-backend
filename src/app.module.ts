@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Logger, Module, UnauthorizedException } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -11,6 +11,8 @@ import { LoggerModule } from "nestjs-pino";
 import { AuthModule } from "./auth/auth.module";
 import { ChatsModule } from "./chats/chats.module";
 import { PubSubModule } from "@/common/pub-sub/pub-sub.module";
+import { AuthService } from "@/auth/auth.service";
+import { Request } from "express";
 
 @Module({
   imports: [
@@ -21,12 +23,28 @@ import { PubSubModule } from "@/common/pub-sub/pub-sub.module";
       }),
     }),
     DatabaseModule,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: true,
-      subscriptions: {
-        "graphql-ws": true,
-      },
+      useFactory: (authSrv: AuthService) => ({
+        autoSchemaFile: true,
+        subscriptions: {
+          "graphql-ws": {
+            onConnect: async (context) => {
+              try {
+                const { extra } = context;
+                (context as any).user = await authSrv.validateWSRequest(
+                  (extra as { request: Request }).request,
+                );
+              } catch (err) {
+                new Logger().error(err);
+                throw new UnauthorizedException("UnKnow error: " + err);
+              }
+            },
+          },
+        },
+      }),
+      imports: [AuthModule],
+      inject: [AuthService],
     }),
     UsersModule,
     LoggerModule.forRootAsync({

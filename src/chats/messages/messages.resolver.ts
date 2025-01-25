@@ -8,11 +8,10 @@ import {
   OnMessageCreatedArgs,
 } from "@/chats/messages/dto";
 import { CurrentUser } from "@/auth/current-user.decorator";
-import { ITokenPayload } from "@/auth/types";
+import { ITokenPayload } from "@/auth/dto";
 import { MessagesService } from "@/chats/messages/messages.service";
 import { MessageDocument } from "@/chats/messages/entities/message.entity";
 import { PUB_SUB_TOKEN } from "@/common/constants";
-import { ON_MESSAGE_CREATED_TRIGGER } from "@/chats/messages/constants";
 
 @Resolver(() => MessageDocument)
 export class MessagesResolver {
@@ -43,11 +42,19 @@ export class MessagesResolver {
     filter: (
       payload: { onMessageCreated: MessageDocument },
       variables: OnMessageCreatedArgs,
+      context: any,
     ) => {
-      return payload.onMessageCreated.chatId === variables.chatId;
+      const contextUser = context.req.user;
+      return (
+        payload.onMessageCreated.chatId === variables.chatId &&
+        contextUser.id !== payload.onMessageCreated.userId
+      );
     },
   })
-  onMessageCreated(@Args() _onMessageCreatedArgs: OnMessageCreatedArgs) {
-    return this.pubSub.asyncIterableIterator(ON_MESSAGE_CREATED_TRIGGER);
+  onMessageCreated(
+    @Args() onMessageCreatedArgs: OnMessageCreatedArgs,
+    @CurrentUser() user: ITokenPayload,
+  ) {
+    return this.messagesService.onMessageCreated(onMessageCreatedArgs, user.id);
   }
 }

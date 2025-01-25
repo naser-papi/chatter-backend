@@ -1,31 +1,24 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Types } from "mongoose";
 import { ChatsRepository } from "@/chats/chats.repository";
-import { CreateMessageInput, GetMessagesArgs } from "@/chats/messages/dto";
+import {
+  CreateMessageInput,
+  GetMessagesArgs,
+  OnMessageCreatedArgs,
+} from "@/chats/messages/dto";
 import { MessageDocument } from "@/chats/messages/entities/message.entity";
 import { PUB_SUB_TOKEN } from "@/common/constants";
 import { PubSub } from "graphql-subscriptions";
 import { ON_MESSAGE_CREATED_TRIGGER } from "@/chats/messages/constants";
+import { ChatsService } from "@/chats/chats.service";
 
 @Injectable()
 export class MessagesService {
   constructor(
     private readonly chatsRepository: ChatsRepository,
+    private readonly chatSrv: ChatsService,
     @Inject(PUB_SUB_TOKEN) private readonly pubSub: PubSub,
   ) {}
-
-  private userFilter(userId: string) {
-    return {
-      $or: [
-        { userId },
-        {
-          userIds: {
-            $in: [userId],
-          },
-        },
-      ],
-    };
-  }
 
   async createMessage({ chatId, content }: CreateMessageInput, userId: string) {
     const message: MessageDocument = {
@@ -38,7 +31,7 @@ export class MessagesService {
     await this.chatsRepository.findOneAndUpdate(
       {
         _id: chatId,
-        ...this.userFilter(userId),
+        ...this.chatSrv.userFilter(userId),
       },
       { $push: { messages: message } },
     );
@@ -53,9 +46,17 @@ export class MessagesService {
       (
         await this.chatsRepository.findOne({
           _id: chatId,
-          ...this.userFilter(userId),
+          ...this.chatSrv.userFilter(userId),
         })
       )?.messages || []
     );
+  }
+
+  async onMessageCreated({ chatId }: OnMessageCreatedArgs, userId: string) {
+    await this.chatsRepository.findOne({
+      _id: chatId,
+      ...this.chatSrv.userFilter(userId),
+    });
+    return this.pubSub.asyncIterableIterator(ON_MESSAGE_CREATED_TRIGGER);
   }
 }

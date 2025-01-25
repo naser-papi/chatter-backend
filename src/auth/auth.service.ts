@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { UserDocument } from "../users/entities/user.schema";
-import { Response } from "express";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { UserDocument } from "@/users/entities/user.schema";
+import { Request, Response } from "express";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { ITokenPayload } from "./types";
+import { ITokenPayload } from "@/auth/dto";
 
 @Injectable()
 export class AuthService {
@@ -31,6 +31,22 @@ export class AuthService {
     return {
       token,
     };
+  }
+
+  async validateWSRequest(request?: Request): Promise<ITokenPayload> {
+    const cookieHeader = request?.headers?.cookie;
+    if (!cookieHeader) {
+      throw new UnauthorizedException("No Cookie Provided in Header");
+    }
+    const cookies = cookieHeader.split("; ");
+    const authCookie = cookies.find((cookie) =>
+      cookie.startsWith("Authorization"),
+    );
+    const token = authCookie?.split("=")[1];
+    if (!token) {
+      throw new UnauthorizedException("No Token Provided in Cookie");
+    }
+    return this.jwtSrv.verify(token);
   }
 
   async logout(response: Response) {

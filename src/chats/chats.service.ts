@@ -6,6 +6,20 @@ import { ChatItemOutput, CreateChatInput, UpdateChatInput } from "@/chats/dto";
 export class ChatsService {
   constructor(private readonly chatsRepository: ChatsRepository) {}
 
+  userFilter(userId: string) {
+    return {
+      $or: [
+        { userId },
+        {
+          userIds: {
+            $in: [userId],
+          },
+        },
+        { isPrivate: false },
+      ],
+    };
+  }
+
   async create(createChatInput: CreateChatInput, userId: string) {
     return this.chatsRepository.create({
       ...createChatInput,
@@ -14,8 +28,10 @@ export class ChatsService {
     });
   }
 
-  async findAll(): Promise<ChatItemOutput[]> {
-    const items = await this.chatsRepository.find({});
+  async findAll(userId: string): Promise<ChatItemOutput[]> {
+    const items = await this.chatsRepository.find({
+      ...this.userFilter(userId),
+    });
     return items.map((chat) => ({
       name: chat.name,
       isPrivate: chat.isPrivate,

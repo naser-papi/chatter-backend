@@ -3,7 +3,7 @@ import { UseGuards } from "@nestjs/common";
 import { ChatsService } from "./chats.service";
 import { GqlAuthGuard } from "@/auth/guards/gql-auth.guard";
 import { CurrentUser } from "@/auth/current-user.decorator";
-import { ITokenPayload } from "@/auth/types";
+import { ITokenPayload } from "@/auth/dto";
 import { ChatDocument } from "./entities/chat.entity";
 import { ChatItemOutput, CreateChatInput, UpdateChatInput } from "@/chats/dto";
 
@@ -20,9 +20,10 @@ export class ChatsResolver {
     return this.chatsService.create(data, user.id);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Query(() => [ChatItemOutput], { name: "chats" })
-  findAll() {
-    return this.chatsService.findAll();
+  findAll(@CurrentUser() user: ITokenPayload) {
+    return this.chatsService.findAll(user.id);
   }
 
   @Query(() => ChatItemOutput, { name: "chat" })

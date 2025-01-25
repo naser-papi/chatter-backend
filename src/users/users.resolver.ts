@@ -4,16 +4,15 @@ import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
 import { UserDocument } from "./entities/user.schema";
 import { UseGuards } from "@nestjs/common";
-import { GqlAuthGuard } from "../auth/guards/gql-auth.guard";
-import { CurrentUser } from "../auth/current-user.decorator";
-import { ITokenPayload } from "../auth/types";
+import { GqlAuthGuard } from "@/auth/guards/gql-auth.guard";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import { ITokenPayload } from "@/auth/dto";
 
 @Resolver(() => UserDocument)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation(() => UserDocument)
-  @UseGuards(GqlAuthGuard)
   createUser(@Args("data") data: CreateUserInput) {
     return this.usersService.create(data);
   }
