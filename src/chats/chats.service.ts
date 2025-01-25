@@ -1,8 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { CreateChatInput } from "./dto/create-chat.input";
-import { UpdateChatInput } from "./dto/update-chat.input";
 import { ChatsRepository } from "./chats.repository";
-import { ChatItemOutput } from "@/chats/dto/chat-item.output";
+import { ChatItemOutput, CreateChatInput, UpdateChatInput } from "@/chats/dto";
 
 @Injectable()
 export class ChatsService {

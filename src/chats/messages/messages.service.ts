@@ -1,13 +1,18 @@
-import { Injectable } from "@nestjs/common";
-import { ChatsRepository } from "@/chats/chats.repository";
-import { CreateMessageInput } from "@/chats/messages/dto/create-message.input";
-import { MessageDocument } from "@/chats/messages/entities/message.entity";
+import { Inject, Injectable } from "@nestjs/common";
 import { Types } from "mongoose";
-import { GetMessagesArgs } from "@/chats/messages/dto/get-messages-args";
+import { ChatsRepository } from "@/chats/chats.repository";
+import { CreateMessageInput, GetMessagesArgs } from "@/chats/messages/dto";
+import { MessageDocument } from "@/chats/messages/entities/message.entity";
+import { PUB_SUB_TOKEN } from "@/common/constants";
+import { PubSub } from "graphql-subscriptions";
+import { ON_MESSAGE_CREATED_TRIGGER } from "@/chats/messages/constants";
 
 @Injectable()
 export class MessagesService {
-  constructor(private readonly chatsRepository: ChatsRepository) {}
+  constructor(
+    private readonly chatsRepository: ChatsRepository,
+    @Inject(PUB_SUB_TOKEN) private readonly pubSub: PubSub,
+  ) {}
 
   private userFilter(userId: string) {
     return {
@@ -26,6 +31,7 @@ export class MessagesService {
     const message: MessageDocument = {
       content,
       userId,
+      chatId,
       createAt: new Date(),
       _id: new Types.ObjectId(),
     };
@@ -36,6 +42,9 @@ export class MessagesService {
       },
       { $push: { messages: message } },
     );
+    await this.pubSub.publish(ON_MESSAGE_CREATED_TRIGGER, {
+      onMessageCreated: message,
+    });
     return message;
   }
 

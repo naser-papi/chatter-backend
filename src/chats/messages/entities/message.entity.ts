@@ -16,4 +16,8 @@ export class MessageDocument extends AbstractDocument {
   @Prop()
   @Field()
   userId: string;
+
+  @Prop()
+  @Field()
+  chatId: string;
 }

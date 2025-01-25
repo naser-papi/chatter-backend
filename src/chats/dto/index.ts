@@ -1,4 +1,4 @@
-import { Field, InputType } from "@nestjs/graphql";
+import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import {
   IsArray,
   IsBoolean,
@@ -7,6 +7,7 @@ import {
   IsString,
 } from "class-validator";
 import { Transform } from "class-transformer";
+import { PartialType } from "@nestjs/mapped-types";
 
 @InputType()
 export class CreateChatInput {
@@ -27,4 +28,25 @@ export class CreateChatInput {
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
   userIds?: string[];
+}
+
+@InputType()
+export class UpdateChatInput extends PartialType(CreateChatInput) {
+  @Field()
+  id: number;
+}
+
+@ObjectType()
+export class ChatItemOutput {
+  @Field()
+  id: string;
+
+  @Field()
+  isPrivate: boolean;
+
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field(() => [String], { nullable: true })
+  userIds: string[];
 }

@@ -1,13 +1,11 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
 import { ChatsService } from "./chats.service";
-import { CreateChatInput } from "./dto/create-chat.input";
-import { UpdateChatInput } from "./dto/update-chat.input";
 import { GqlAuthGuard } from "@/auth/guards/gql-auth.guard";
 import { CurrentUser } from "@/auth/current-user.decorator";
 import { ITokenPayload } from "@/auth/types";
 import { ChatDocument } from "./entities/chat.entity";
-import { ChatItemOutput } from "@/chats/dto/chat-item.output";
+import { ChatItemOutput, CreateChatInput, UpdateChatInput } from "@/chats/dto";
 
 @Resolver("Chat")
 export class ChatsResolver {
