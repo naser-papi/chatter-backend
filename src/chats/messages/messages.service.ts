@@ -1,11 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Types } from "mongoose";
 import { ChatsRepository } from "@/chats/chats.repository";
-import {
-  CreateMessageInput,
-  GetMessagesArgs,
-  OnMessageCreatedArgs,
-} from "@/chats/messages/dto";
+import { CreateMessageInput, GetMessagesArgs } from "@/chats/messages/dto";
 import { MessageDocument } from "@/chats/messages/entities/message.entity";
 import { PUB_SUB_TOKEN } from "@/common/constants";
 import { PubSub } from "graphql-subscriptions";
@@ -45,18 +41,14 @@ export class MessagesService {
     return (
       (
         await this.chatsRepository.findOne({
-          _id: chatId,
+          _id: new Types.ObjectId(chatId),
           ...this.chatSrv.userFilter(userId),
         })
       )?.messages || []
     );
   }
 
-  async onMessageCreated({ chatId }: OnMessageCreatedArgs, userId: string) {
-    await this.chatsRepository.findOne({
-      _id: chatId,
-      ...this.chatSrv.userFilter(userId),
-    });
+  async onMessageCreated() {
     return this.pubSub.asyncIterableIterator(ON_MESSAGE_CREATED_TRIGGER);
   }
 }

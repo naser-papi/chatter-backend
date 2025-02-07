@@ -1,6 +1,7 @@
 import { Logger, NotFoundException } from "@nestjs/common";
 import { FilterQuery, Model, Types, UpdateQuery } from "mongoose";
 import { AbstractDocument } from "./abstract.schema";
+import { PaginationArgsDto } from "@/common/dto";
 
 export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   protected abstract readonly logger: Logger;
@@ -15,8 +16,22 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     return (await createdDoc.save()).toJSON() as unknown as TDocument;
   }
 
-  async findOne(filterQuery: FilterQuery<TDocument>): Promise<TDocument> {
-    const doc = this.model.findOne(filterQuery).lean<TDocument>();
+  async findOne(
+    filterQuery: FilterQuery<TDocument>,
+    fieldsToExclude?: (keyof TDocument)[],
+  ): Promise<TDocument> {
+    const excludeFields = fieldsToExclude?.reduce(
+      (acc, field) => {
+        acc[field as string] = 0; // Exclude fields with MongoDB's projection syntax
+        return acc;
+      },
+      {} as Record<string, 0>,
+    );
+
+    const doc = await this.model
+      .findOne(filterQuery)
+      .select(excludeFields)
+      .lean<TDocument>();
     if (!doc) {
       this.logger.error(
         `Document not found with filter query ${JSON.stringify(filterQuery)}`,
@@ -44,11 +59,40 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     return doc;
   }
 
-  async find(filterQuery: FilterQuery<TDocument>): Promise<TDocument[]> {
-    return this.model.find(filterQuery).lean<TDocument[]>();
+  async find(
+    filterQuery: FilterQuery<TDocument>,
+    fieldsToExclude?: (keyof TDocument)[],
+    pagination?: PaginationArgsDto,
+  ): Promise<TDocument[]> {
+    // Initialize the `select` to exclude fields
+    const excludeFields = fieldsToExclude?.reduce(
+      (acc, field) => {
+        acc[field as string] = 0; // MongoDB syntax: 0 means exclude
+        return acc;
+      },
+      {} as Record<string, 0>,
+    );
+
+    const query = this.model
+      .find(filterQuery)
+      .select(excludeFields)
+      .lean<TDocument[]>();
+
+    // Apply pagination if the pagination argument is provided
+    if (pagination) {
+      const { limit, skip } = pagination;
+      if (typeof skip === "number") query.skip(skip);
+      if (typeof limit === "number") query.limit(limit);
+    }
+
+    return query;
   }
 
   async findOneAndDelete(filterQuery: FilterQuery<TDocument>) {
     return this.model.findOneAndDelete(filterQuery).lean<TDocument>();
+  }
+
+  async count() {
+    return this.model.countDocuments();
   }
 }

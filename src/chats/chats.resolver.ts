@@ -5,7 +5,8 @@ import { GqlAuthGuard } from "@/auth/guards/gql-auth.guard";
 import { CurrentUser } from "@/auth/current-user.decorator";
 import { ITokenPayload } from "@/auth/dto";
 import { ChatDocument } from "./entities/chat.entity";
-import { ChatItemOutput, CreateChatInput, UpdateChatInput } from "@/chats/dto";
+import { CreateChatInput, UpdateChatInput } from "@/chats/dto";
+import { PaginationArgsDto } from "@/common/dto";
 
 @Resolver("Chat")
 export class ChatsResolver {
@@ -21,12 +22,15 @@ export class ChatsResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => [ChatItemOutput], { name: "chats" })
-  findAll(@CurrentUser() user: ITokenPayload) {
-    return this.chatsService.findAll(user.id);
+  @Query(() => [ChatDocument], { name: "chats" })
+  findAll(
+    @CurrentUser() user: ITokenPayload,
+    @Args() pagination: PaginationArgsDto,
+  ) {
+    return this.chatsService.findAll(user.id, pagination);
   }
 
-  @Query(() => ChatItemOutput, { name: "chat" })
+  @Query(() => ChatDocument, { name: "chat" })
   findOne(@Args("id") id: string) {
     return this.chatsService.findOne(id);
   }

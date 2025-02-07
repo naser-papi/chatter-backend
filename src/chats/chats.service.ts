@@ -1,6 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import { Types } from "mongoose";
 import { ChatsRepository } from "./chats.repository";
-import { ChatItemOutput, CreateChatInput, UpdateChatInput } from "@/chats/dto";
+import { CreateChatInput, UpdateChatInput } from "@/chats/dto";
+import { PaginationArgsDto } from "@/common/dto";
+import { ObjectId } from "mongodb";
 
 @Injectable()
 export class ChatsService {
@@ -9,7 +12,7 @@ export class ChatsService {
   userFilter(userId: string) {
     return {
       $or: [
-        { userId },
+        { userId: new Types.ObjectId(userId) },
         {
           userIds: {
             $in: [userId],
@@ -20,34 +23,40 @@ export class ChatsService {
     };
   }
 
+  async chatsCount() {
+    return this.chatsRepository.count();
+  }
+
   async create(createChatInput: CreateChatInput, userId: string) {
-    return this.chatsRepository.create({
+    const chat = await this.chatsRepository.create({
       ...createChatInput,
       messages: [],
       userId,
     });
-  }
-
-  async findAll(userId: string): Promise<ChatItemOutput[]> {
-    const items = await this.chatsRepository.find({
-      ...this.userFilter(userId),
-    });
-    return items.map((chat) => ({
-      name: chat.name,
-      isPrivate: chat.isPrivate,
-      id: chat._id.toString(),
-      userIds: [],
-    }));
-  }
-
-  async findOne(id: string): Promise<ChatItemOutput> {
-    const byId = await this.chatsRepository.findOne({ _id: id });
-    return {
-      isPrivate: byId.isPrivate,
-      name: byId.name,
-      id: byId._id.toString(),
-      userIds: [],
+    chat.lastMessage = {
+      _id: new ObjectId(),
+      userId,
+      content: "",
+      createAt: new Date(),
+      chatId: chat._id.toString(),
     };
+    return chat;
+  }
+
+  async findAll(userId: string, pagination: PaginationArgsDto) {
+    return this.chatsRepository.find(
+      {
+        ...this.userFilter(userId),
+      },
+      ["messages"],
+      pagination,
+    );
+  }
+
+  async findOne(id: string) {
+    return this.chatsRepository.findOne({
+      _id: new Types.ObjectId(id),
+    });
   }
 
   update(id: number, updateChatInput: UpdateChatInput) {

@@ -10,8 +10,8 @@ import {
 import { CurrentUser } from "@/auth/current-user.decorator";
 import { ITokenPayload } from "@/auth/dto";
 import { MessagesService } from "@/chats/messages/messages.service";
-import { MessageDocument } from "@/chats/messages/entities/message.entity";
 import { PUB_SUB_TOKEN } from "@/common/constants";
+import { MessageDocument } from "@/chats/messages/entities/message.entity";
 
 @Resolver(() => MessageDocument)
 export class MessagesResolver {
@@ -46,15 +46,15 @@ export class MessagesResolver {
     ) => {
       const contextUser = context.req.user;
       return (
-        payload.onMessageCreated.chatId === variables.chatId &&
+        variables.chatIds.includes(payload.onMessageCreated.chatId) &&
         contextUser.id !== payload.onMessageCreated.userId
       );
     },
   })
   onMessageCreated(
-    @Args() onMessageCreatedArgs: OnMessageCreatedArgs,
-    @CurrentUser() user: ITokenPayload,
+    @Args() _onMessageCreatedArgs: OnMessageCreatedArgs,
+    @CurrentUser() _user: ITokenPayload,
   ) {
-    return this.messagesService.onMessageCreated(onMessageCreatedArgs, user.id);
+    return this.messagesService.onMessageCreated();
   }
 }

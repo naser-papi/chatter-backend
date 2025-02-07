@@ -1,4 +1,4 @@
-import { Field, InputType, ObjectType } from "@nestjs/graphql";
+import { Field, InputType } from "@nestjs/graphql";
 import {
   IsArray,
   IsBoolean,
@@ -16,11 +16,10 @@ export class CreateChatInput {
   @Transform(({ value }) => value === "true")
   isPrivate: boolean;
 
-  @Field({ nullable: true })
-  @IsOptional()
+  @Field()
   @IsString()
   @IsNotEmpty()
-  name?: string;
+  name: string;
 
   @Field(() => [String], { nullable: true })
   @IsOptional()
@@ -33,20 +32,6 @@ export class CreateChatInput {
 @InputType()
 export class UpdateChatInput extends PartialType(CreateChatInput) {
   @Field()
+  @IsNotEmpty()
   id: number;
-}
-
-@ObjectType()
-export class ChatItemOutput {
-  @Field()
-  id: string;
-
-  @Field()
-  isPrivate: boolean;
-
-  @Field({ nullable: true })
-  name?: string;
-
-  @Field(() => [String], { nullable: true })
-  userIds: string[];
 }
