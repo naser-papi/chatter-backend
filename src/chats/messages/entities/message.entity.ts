@@ -1,6 +1,7 @@
 import { AbstractDocument } from "@/common/database/abstract.schema";
 import { Prop, Schema } from "@nestjs/mongoose";
 import { Field, ObjectType } from "@nestjs/graphql";
+import { UserDocument } from "@/users/entities/user.schema";
 
 @Schema({ collection: "messages", versionKey: false })
 @ObjectType()
@@ -20,4 +21,7 @@ export class MessageDocument extends AbstractDocument {
   @Prop()
   @Field()
   chatId: string;
+
+  @Field(() => UserDocument, { nullable: true })
+  user?: UserDocument;
 }

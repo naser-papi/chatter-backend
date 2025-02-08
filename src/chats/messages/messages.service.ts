@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Types } from "mongoose";
 import { ChatsRepository } from "@/chats/chats.repository";
 import { CreateMessageInput, GetMessagesArgs } from "@/chats/messages/dto";
@@ -16,6 +16,14 @@ export class MessagesService {
     @Inject(PUB_SUB_TOKEN) private readonly pubSub: PubSub,
   ) {}
 
+  async getMessagesCount(chatId: string): Promise<number> {
+    const result = await this.chatsRepository.getMessageCount(chatId);
+    if (!result.length) {
+      throw new NotFoundException(`Chat with id ${chatId} not found`);
+    }
+    return result[0].messageCount;
+  }
+
   async createMessage({ chatId, content }: CreateMessageInput, userId: string) {
     const message: MessageDocument = {
       content,
@@ -26,7 +34,7 @@ export class MessagesService {
     };
     await this.chatsRepository.findOneAndUpdate(
       {
-        _id: chatId,
+        _id: new Types.ObjectId(chatId),
         ...this.chatSrv.userFilter(userId),
       },
       { $push: { messages: message } },
@@ -37,15 +45,17 @@ export class MessagesService {
     return message;
   }
 
-  async getMessages({ chatId }: GetMessagesArgs, userId: string) {
-    return (
-      (
-        await this.chatsRepository.findOne({
-          _id: new Types.ObjectId(chatId),
-          ...this.chatSrv.userFilter(userId),
-        })
-      )?.messages || []
+  async getMessages({ chatId, skip, limit }: GetMessagesArgs, userId: string) {
+    const result = await this.chatsRepository.getMessages(
+      {
+        _id: new Types.ObjectId(chatId),
+        ...this.chatSrv.userFilter(userId),
+      },
+      skip,
+      limit,
     );
+    if (!result) return [];
+    else return result as MessageDocument[];
   }
 
   async onMessageCreated() {

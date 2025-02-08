@@ -1,4 +1,4 @@
-import { ArgsType, Field, InputType } from "@nestjs/graphql";
+import { ArgsType, Field, InputType, Int } from "@nestjs/graphql";
 import { IsArray, IsNotEmpty } from "class-validator";
 
 @ArgsType()
@@ -14,6 +14,14 @@ export class GetMessagesArgs {
   @Field()
   @IsNotEmpty()
   chatId: string;
+
+  @Field(() => Int)
+  @IsNotEmpty()
+  skip: number;
+
+  @Field(() => Int)
+  @IsNotEmpty()
+  limit: number;
 }
 
 @InputType()
