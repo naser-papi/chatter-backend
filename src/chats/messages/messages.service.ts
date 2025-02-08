@@ -7,6 +7,7 @@ import { PUB_SUB_TOKEN } from "@/common/constants";
 import { PubSub } from "graphql-subscriptions";
 import { ON_MESSAGE_CREATED_TRIGGER } from "@/chats/messages/constants";
 import { ChatsService } from "@/chats/chats.service";
+import { ITokenPayload } from "@/auth/dto";
 
 @Injectable()
 export class MessagesService {
@@ -24,10 +25,18 @@ export class MessagesService {
     return result[0].messageCount;
   }
 
-  async createMessage({ chatId, content }: CreateMessageInput, userId: string) {
+  async createMessage(
+    { chatId, content }: CreateMessageInput,
+    user: ITokenPayload,
+  ) {
     const message: MessageDocument = {
       content,
-      userId,
+      user: {
+        _id: new Types.ObjectId(user.id),
+        email: user.email,
+        password: "",
+      },
+      userId: user.id,
       chatId,
       createAt: new Date(),
       _id: new Types.ObjectId(),
@@ -35,7 +44,7 @@ export class MessagesService {
     await this.chatsRepository.findOneAndUpdate(
       {
         _id: new Types.ObjectId(chatId),
-        ...this.chatSrv.userFilter(userId),
+        ...this.chatSrv.userFilter(user.id),
       },
       { $push: { messages: message } },
     );

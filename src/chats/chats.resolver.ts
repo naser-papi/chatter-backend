@@ -18,7 +18,7 @@ export class ChatsResolver {
     @Args("data") data: CreateChatInput,
     @CurrentUser() user: ITokenPayload,
   ) {
-    return this.chatsService.create(data, user.id);
+    return this.chatsService.create(data, user);
   }
 
   @UseGuards(GqlAuthGuard)

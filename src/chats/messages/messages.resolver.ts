@@ -26,7 +26,7 @@ export class MessagesResolver {
     @Args("data") data: CreateMessageInput,
     @CurrentUser() user: ITokenPayload,
   ) {
-    return this.messagesService.createMessage(data, user.id);
+    return this.messagesService.createMessage(data, user);
   }
 
   @Query(() => [MessageDocument], { name: "messages" })

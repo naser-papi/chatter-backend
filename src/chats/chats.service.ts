@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { ChatsRepository } from "./chats.repository";
 import { CreateChatInput, UpdateChatInput } from "@/chats/dto";
 import { PaginationArgsDto } from "@/common/dto";
-import { ObjectId } from "mongodb";
+import { ITokenPayload } from "@/auth/dto";
 
 @Injectable()
 export class ChatsService {
@@ -27,15 +27,20 @@ export class ChatsService {
     return this.chatsRepository.count();
   }
 
-  async create(createChatInput: CreateChatInput, userId: string) {
+  async create(createChatInput: CreateChatInput, user: ITokenPayload) {
     const chat = await this.chatsRepository.create({
       ...createChatInput,
       messages: [],
-      userId,
+      userId: user.id,
     });
     chat.lastMessage = {
-      _id: new ObjectId(),
-      userId,
+      _id: new Types.ObjectId(),
+      user: {
+        _id: new Types.ObjectId(user.id),
+        email: user.email,
+        password: "",
+      },
+      userId: user.id,
       content: "",
       createAt: new Date(),
       chatId: chat._id.toString(),
