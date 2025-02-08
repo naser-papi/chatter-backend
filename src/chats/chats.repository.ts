@@ -122,7 +122,7 @@ export class ChatsRepository extends AbstractRepository<ChatDocument> {
           as: "user",
         },
       },
-      { $unwind: "$user" },
+      { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
       { $unset: "userId" },
     ]);
   }
