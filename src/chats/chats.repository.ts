@@ -35,7 +35,7 @@ export class ChatsRepository extends AbstractRepository<ChatDocument> {
           lastMessage: {
             $ifNull: [
               { $arrayElemAt: ["$messages", -1] },
-              { content: "", createAt: new Date() },
+              { content: "", createAt: new Date(2000, 12, 29) },
             ],
           },
         },
