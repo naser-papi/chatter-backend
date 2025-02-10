@@ -31,7 +31,7 @@ export class ChatsService {
     const chat = await this.chatsRepository.create({
       ...createChatInput,
       messages: [],
-      userId: user.id,
+      userId: new Types.ObjectId(user.id),
     });
     chat.lastMessage = {
       _id: new Types.ObjectId(),
@@ -40,10 +40,10 @@ export class ChatsService {
         email: user.email,
         password: "",
       },
-      userId: user.id,
+      userId: new Types.ObjectId(user.id),
       content: "",
       createAt: new Date(),
-      chatId: chat._id.toString(),
+      chatId: chat._id,
     };
     return chat;
   }

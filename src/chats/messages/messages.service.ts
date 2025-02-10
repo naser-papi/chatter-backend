@@ -36,8 +36,8 @@ export class MessagesService {
         email: user.email,
         password: "",
       },
-      userId: user.id,
-      chatId,
+      userId: new Types.ObjectId(user.id),
+      chatId: new Types.ObjectId(chatId),
       createAt: new Date(),
       _id: new Types.ObjectId(),
     };

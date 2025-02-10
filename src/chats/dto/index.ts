@@ -1,4 +1,4 @@
-import { Field, InputType } from "@nestjs/graphql";
+import { Field, ID, InputType } from "@nestjs/graphql";
 import {
   IsArray,
   IsBoolean,
@@ -8,6 +8,7 @@ import {
 } from "class-validator";
 import { Transform } from "class-transformer";
 import { PartialType } from "@nestjs/mapped-types";
+import { Types } from "mongoose";
 
 @InputType()
 export class CreateChatInput {
@@ -21,12 +22,12 @@ export class CreateChatInput {
   @IsNotEmpty()
   name: string;
 
-  @Field(() => [String], { nullable: true })
+  @Field(() => [ID], { nullable: true })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
-  userIds?: string[];
+  userIds?: Types.ObjectId[];
 }
 
 @InputType()

@@ -35,11 +35,17 @@ export class ChatsRepository extends AbstractRepository<ChatDocument> {
           lastMessage: {
             $ifNull: [
               { $arrayElemAt: ["$messages", -1] },
-              { content: "", createAt: new Date(2000, 12, 29) },
+              {
+                _id: new Types.ObjectId(),
+                content: "",
+                createAt: new Date(2000, 12, 29),
+                userId: new Types.ObjectId("677d6a873704ae3255691015"), // Initial fallback value for userId
+              },
             ],
           },
         },
       },
+
       // Lookup to fetch user details for the lastMessage using userId
       {
         $lookup: {
@@ -55,13 +61,11 @@ export class ChatsRepository extends AbstractRepository<ChatDocument> {
           preserveNullAndEmptyArrays: true, // Optional: handles cases where no user is found
         },
       },
+      { $project: excludeFields },
       {
         $sort: {
           "lastMessage.createAt": -1, // Sort by `lastMessage.createAt` in descending order
         },
-      },
-      {
-        $project: excludeFields,
       },
     ];
     if (pagination) {

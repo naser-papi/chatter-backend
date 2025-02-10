@@ -46,8 +46,9 @@ export class MessagesResolver {
     ) => {
       const contextUser = context.req.user;
       return (
-        variables.chatIds.includes(payload.onMessageCreated.chatId) &&
-        contextUser.id !== payload.onMessageCreated.userId
+        variables.chatIds.includes(
+          payload.onMessageCreated.chatId.toString(),
+        ) && contextUser.id !== payload.onMessageCreated.userId
       );
     },
   })
