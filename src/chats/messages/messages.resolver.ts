@@ -48,7 +48,7 @@ export class MessagesResolver {
       return (
         variables.chatIds.includes(
           payload.onMessageCreated.chatId.toString(),
-        ) && contextUser.id !== payload.onMessageCreated.userId
+        ) && contextUser.id !== payload.onMessageCreated.userId.toString()
       );
     },
   })
