@@ -43,10 +43,14 @@ export class MessagesService {
       },
       { $push: { messages: message } },
     );
-    await this.pubSub.publish(ON_MESSAGE_CREATED_TRIGGER, {
-      onMessageCreated: message,
+    const byIdWithLastMessage = await this.chatsRepository.findOne({
+      _id: new Types.ObjectId(chatId),
+      ...this.chatSrv.userFilter(user.id),
     });
-    return message;
+    await this.pubSub.publish(ON_MESSAGE_CREATED_TRIGGER, {
+      onMessageCreated: byIdWithLastMessage.lastMessage,
+    });
+    return byIdWithLastMessage.lastMessage;
   }
 
   async getMessages({ chatId, skip, limit }: GetMessagesArgs, userId: string) {

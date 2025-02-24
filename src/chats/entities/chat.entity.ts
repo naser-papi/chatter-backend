@@ -3,11 +3,12 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { MessageDocument } from "@/chats/messages/entities/message.entity";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { SchemaTypes, Types } from "mongoose";
+import { UserDocument } from "@/users/entities/user.schema";
 
 @Schema({ versionKey: false, collection: "chats" })
 @ObjectType()
 export class ChatDocument extends AbstractDocument {
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: SchemaTypes.ObjectId, ref: UserDocument.name })
   @Field(() => ID)
   userId: Types.ObjectId;
 
