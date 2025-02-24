@@ -45,7 +45,7 @@ export class UsersService {
     email: string,
     pass: string,
   ): Promise<UserDocument> {
-    const user = await this.usersRepository.findOne({ email });
+    const user = await this.usersRepository.findOne({ email }, undefined, true);
     if (!user) {
       throw new UnauthorizedException("Invalid credentials!");
     }

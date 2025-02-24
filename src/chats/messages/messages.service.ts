@@ -31,11 +31,6 @@ export class MessagesService {
   ) {
     const message: MessageDocument = {
       content,
-      user: {
-        _id: new Types.ObjectId(user.id),
-        email: user.email,
-        password: "",
-      },
       userId: new Types.ObjectId(user.id),
       chatId: new Types.ObjectId(chatId),
       createAt: new Date(),

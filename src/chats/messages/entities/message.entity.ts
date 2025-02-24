@@ -15,7 +15,7 @@ export class MessageDocument extends AbstractDocument {
   @Field()
   createAt: Date;
 
-  @Prop({ type: SchemaTypes.ObjectId })
+  @Prop({ type: SchemaTypes.ObjectId, ref: UserDocument.name })
   @Field(() => ID)
   userId: Types.ObjectId;
 

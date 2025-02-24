@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { UserDocument } from "../users/entities/user.schema";
+import { UserDocument } from "@/users/entities/user.schema";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 
 const getCurrentUserByContext = (context: ExecutionContext): UserDocument => {

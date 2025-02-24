@@ -19,6 +19,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
   async findOne(
     filterQuery: FilterQuery<TDocument>,
     fieldsToExclude?: (keyof TDocument)[],
+    notThrowException = false,
   ): Promise<TDocument> {
     const excludeFields = fieldsToExclude?.reduce(
       (acc, field) => {
@@ -36,7 +37,8 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
       this.logger.error(
         `Document not found with filter query ${JSON.stringify(filterQuery)}`,
       );
-      throw new NotFoundException("Document not found");
+      if (notThrowException) return null;
+      throw new NotFoundException("User not found");
     }
     return doc;
   }

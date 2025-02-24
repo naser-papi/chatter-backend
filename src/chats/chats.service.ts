@@ -35,11 +35,6 @@ export class ChatsService {
     });
     chat.lastMessage = {
       _id: new Types.ObjectId(),
-      user: {
-        _id: new Types.ObjectId(user.id),
-        email: user.email,
-        password: "",
-      },
       userId: new Types.ObjectId(user.id),
       content: "",
       createAt: new Date(),
