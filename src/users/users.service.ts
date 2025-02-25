@@ -4,10 +4,16 @@ import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
 import { UsersRepository } from "./users.repository";
 import { UserDocument } from "./entities/user.schema";
+import { Express } from "express";
+import { StorageService } from "@/common/storage/storage.service";
+import { Types } from "mongoose";
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly storageSrv: StorageService,
+  ) {}
 
   create(createUserInput: CreateUserInput) {
     const password = bycrypt.hashSync(createUserInput.password, 10);
@@ -32,6 +38,25 @@ export class UsersService {
       {
         $set: {
           ...updateUserInput,
+        },
+      },
+    );
+  }
+
+  async updateProfile(
+    id: string,
+    fullName: string,
+    avatar: Express.Multer.File,
+  ) {
+    const blobName = `${Date.now()}-${avatar.originalname}`;
+    const url = await this.storageSrv.uploadFile(avatar.buffer, blobName);
+
+    return this.usersRepository.findOneAndUpdate(
+      { _id: new Types.ObjectId(id) },
+      {
+        $set: {
+          fullName,
+          avatarUrl: url,
         },
       },
     );
