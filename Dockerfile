@@ -12,7 +12,7 @@ ARG AZURE_STORAGE_CONNECTION_STRING
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copy package manager lock file and package.json to the container
 COPY pnpm-lock.yaml ./
@@ -32,7 +32,7 @@ ENV JWT_EXPIRES_IN=$JWT_EXPIRES_IN
 ENV AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING
 ENV PORT=8000
 RUN echo "MONGO_URI at build-time: $MONGO_URI"
-CMD ["sh", "-c", "echo 'MONGO_URI at runtime: $MONGO_URI' && pnpm run start:prod"]
+CMD ["sh", "-c", "echo 'MONGO_URI at runtime: $MONGO_URI'"]
 
 # Build the application
 RUN pnpm run build
@@ -52,7 +52,7 @@ ARG JWT_EXPIRES_IN
 ARG AZURE_STORAGE_CONNECTION_STRING
 
 # Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Copy package manager lock file and package.json to the container
 COPY pnpm-lock.yaml ./
@@ -63,7 +63,7 @@ RUN pnpm install --frozen-lockfile --only=production
 
 
 # Copy the build output from the first stage
-COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /app/dist .
 
 # Expose the application port
 EXPOSE 8000
@@ -78,7 +78,7 @@ ENV JWT_EXPIRES_IN=$JWT_EXPIRES_IN
 ENV AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING
 ENV PORT=8000
 RUN echo "MONGO_URI at build-time: $MONGO_URI"
-CMD ["sh", "-c", "echo 'MONGO_URI at runtime: $MONGO_URI' && pnpm run start:prod"]
+CMD ["sh", "-c", "echo 'MONGO_URI at runtime: $MONGO_URI'"]
 
 # Start the application
 CMD ["pnpm", "run", "start:prod"]
