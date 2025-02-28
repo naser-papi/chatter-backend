@@ -31,7 +31,8 @@ ENV JWT_SECRET=$JWT_SECRET
 ENV JWT_EXPIRES_IN=$JWT_EXPIRES_IN
 ENV AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING
 ENV PORT=8000
-RUN echo "The value of MONGO_URI is 1: MONGO_URI"
+RUN echo "MONGO_URI at build-time: $MONGO_URI"
+CMD ["sh", "-c", "echo 'MONGO_URI at runtime: $MONGO_URI' && pnpm run start:prod"]
 
 # Build the application
 RUN pnpm run build
@@ -75,8 +76,9 @@ ENV ALLOWED_ORIGINS=$ALLOWED_ORIGINS
 ENV JWT_SECRET=$JWT_SECRET
 ENV JWT_EXPIRES_IN=$JWT_EXPIRES_IN
 ENV AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING
-RUN echo "The value of MONGO_URI is 2: MONGO_URI"
 ENV PORT=8000
+RUN echo "MONGO_URI at build-time: $MONGO_URI"
+CMD ["sh", "-c", "echo 'MONGO_URI at runtime: $MONGO_URI' && pnpm run start:prod"]
 
 # Start the application
 CMD ["pnpm", "run", "start:prod"]
