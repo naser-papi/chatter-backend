@@ -30,7 +30,7 @@ ENV ALLOWED_ORIGINS=$ALLOWED_ORIGINS
 ENV JWT_SECRET=$JWT_SECRET
 ENV JWT_EXPIRES_IN=$JWT_EXPIRES_IN
 ENV AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING
-ENV PORT=8000
+ENV PORT=3000
 RUN echo "The value of MONGO_URI is 1: MONGO_URI"
 
 # Build the application
@@ -65,7 +65,7 @@ RUN pnpm install --frozen-lockfile --only=production
 COPY --from=builder /usr/src/app/dist ./dist
 
 # Expose the application port
-EXPOSE 8000
+EXPOSE 3000
 
 # Default environment variables (optional to provide defaults)
 ENV NODE_ENV=production
@@ -76,7 +76,7 @@ ENV JWT_SECRET=$JWT_SECRET
 ENV JWT_EXPIRES_IN=$JWT_EXPIRES_IN
 ENV AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING
 RUN echo "The value of MONGO_URI is 2: MONGO_URI"
-ENV PORT=8000
+ENV PORT=3000
 
 # Start the application
 CMD ["pnpm", "run", "start:prod"]
