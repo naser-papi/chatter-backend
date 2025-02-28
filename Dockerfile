@@ -39,6 +39,9 @@ RUN pnpm run build
 # Stage 2: Create the production image
 FROM node:20.11.1-alpine AS ImageBuilder
 
+# Install pnpm globally
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 ARG MONGO_URI
 ARG PORT
 ARG DB_NAME
@@ -55,7 +58,7 @@ COPY pnpm-lock.yaml ./
 COPY package.json ./
 
 # Install only production dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --only=production
 
 
 # Copy the build output from the first stage
