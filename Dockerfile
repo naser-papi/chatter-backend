@@ -55,7 +55,7 @@ COPY pnpm-lock.yaml ./
 COPY package.json ./
 
 # Install only production dependencies
-RUN pnpm install --frozen-lockfile --only=production
+RUN pnpm install --frozen-lockfile
 
 
 # Copy the build output from the first stage
