@@ -32,7 +32,6 @@ ENV JWT_EXPIRES_IN=$JWT_EXPIRES_IN
 ENV AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING
 ENV PORT=8000
 RUN echo "MONGO_URI at build-time: $MONGO_URI"
-CMD ["sh", "-c", "echo 'MONGO_URI at runtime: $MONGO_URI'"]
 
 # Build the application
 RUN pnpm run build
@@ -59,11 +58,11 @@ COPY pnpm-lock.yaml ./
 COPY package.json ./
 
 # Install only production dependencies
-RUN pnpm install --frozen-lockfile --only=production
+RUN pnpm install --frozen-lockfile
 
 
 # Copy the build output from the first stage
-COPY --from=builder /app/dist .
+COPY --from=builder /app/dist ./dist
 
 # Expose the application port
 EXPOSE 8000
@@ -78,7 +77,7 @@ ENV JWT_EXPIRES_IN=$JWT_EXPIRES_IN
 ENV AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING
 ENV PORT=8000
 RUN echo "MONGO_URI at build-time: $MONGO_URI"
-CMD ["sh", "-c", "echo 'MONGO_URI at runtime: $MONGO_URI'"]
+
 
 # Start the application
-CMD ["pnpm", "run", "start:prod"]
+CMD ["pnpm", "start:prod"]
