@@ -48,6 +48,8 @@ RUN pnpm install --frozen-lockfile --only=production
 # Copy the built application from the builder stage
 COPY --from=builder /app/dist ./dist
 
+RUN ls -la /app/dist
+
 # Expose the application port
 EXPOSE 8000
 
