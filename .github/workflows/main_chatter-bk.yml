@@ -32,6 +32,13 @@ jobs:
         push: true
         tags: naseracr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_103dbd3775ea4a4482778a73aee55cce }}/chatter-backend:${{ github.sha }}
         file: ./Dockerfile
+        build-args: |
+          MONGO_URI=${{ secrets.MONGO_URI }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
+          AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
 
   deploy:
     runs-on: ubuntu-latest
