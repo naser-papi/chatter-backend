@@ -19,8 +19,8 @@ async function bootstrap() {
     allowedHeaders: "Content-Type, Authorization", // Define allowed headers
     methods: "GET,POST,PUT,DELETE,OPTIONS", // Define allowed HTTP methods
   });
-
-  await app.listen(configSrv.getOrThrow("PORT"));
+  const port = configSrv.getOrThrow("PORT") || 8181;
+  await app.listen(parseInt(port, 10));
 }
 
 bootstrap();
