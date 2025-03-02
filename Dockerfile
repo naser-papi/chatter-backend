@@ -10,7 +10,8 @@ ARG AZURE_STORAGE_CONNECTION_STRING
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-WORKDIR /home/site/wwwroot  # Change to Azure's expected directory
+# Change to Azure's expected directory
+WORKDIR /home/site/wwwroot
 
 COPY pnpm-lock.yaml ./
 COPY package.json ./
