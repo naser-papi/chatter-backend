@@ -81,4 +81,4 @@ RUN echo "MONGO_URI at runtime: $MONGO_URI"
 EXPOSE 8000
 
 # Start the application
-CMD ["pnpm", "start:prod"]
+CMD ["node", "dist/main"]
