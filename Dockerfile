@@ -1,13 +1,11 @@
 # Stage 1: Build the application
 FROM node:20.11.1-alpine AS builder
 
-ENV NODE_ENV=developmet
+ENV NODE_ENV=development
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
-
-COPY . .
 
 COPY pnpm-lock.yaml ./
 COPY package.json ./
@@ -15,15 +13,17 @@ COPY package.json ./
 # Make sure the dev dependencies (including Nest CLI) get installed for the build
 RUN pnpm install --frozen-lockfile
 
+COPY . .
 
 RUN node node_modules/@nestjs/cli/bin/nest.js build
 
-RUN ls -la /app  # Debug: Check the built files
+
 
 # Stage 2: Create the production image
 FROM node:20.11.1-alpine AS final
 
-ENV NODE_ENV=developmet
+ENV NODE_ENV=production
+
 # Enable pnpm via Corepack
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
