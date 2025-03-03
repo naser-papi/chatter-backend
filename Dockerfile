@@ -1,40 +1,49 @@
 # Stage 1: Build the application
 FROM node:20.11.1-alpine AS builder
 
-ARG MONGO_URI
-ARG DB_NAME
-ARG ALLOWED_ORIGINS
-ARG JWT_SECRET
-ARG JWT_EXPIRES_IN
-ARG AZURE_STORAGE_CONNECTION_STRING
+ENV NODE_ENV=developmet
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Change to Azure's expected directory
-WORKDIR /home/site/wwwroot
+WORKDIR /app
+
+COPY . .
 
 COPY pnpm-lock.yaml ./
 COPY package.json ./
+
+# Make sure the dev dependencies (including Nest CLI) get installed for the build
 RUN pnpm install --frozen-lockfile
 
-COPY . .
-RUN pnpm run build
 
-RUN ls -la /home/site/wwwroot  # Debug: Check the built files
+RUN node node_modules/@nestjs/cli/bin/nest.js build
+
+RUN ls -la /app  # Debug: Check the built files
 
 # Stage 2: Create the production image
 FROM node:20.11.1-alpine AS final
 
+ENV NODE_ENV=developmet
+# Enable pnpm via Corepack
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-WORKDIR /home/site/wwwroot
+# Create /app folder, set permissions
+RUN addgroup -g 1001 appgroup \
+    && adduser -D -G appgroup -u 1001 appuser \
+    && mkdir -p /app \
+    && chown -R appuser:appgroup /app
 
+WORKDIR /app
+
+# Switch to non-root user only after you have the directory owned by them
+USER appuser
+
+# Copy pnpm files, install production dependencies
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --only=production
 
-COPY --from=builder /home/site/wwwroot/dist ./dist
-
-RUN ls -la /home/site/wwwroot/dist  # Debug: Check copied files
+# Copy the compiled code from builder stage
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 8000
 CMD ["pnpm", "start:prod"]
