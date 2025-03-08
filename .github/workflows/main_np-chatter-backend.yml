@@ -49,12 +49,3 @@ jobs:
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_029b306a69e34127a4cf4938beef9546 }}
         images: 'naseracr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_308887af8f084db59b85e4f747ebb0ca }}/np-chatter-backend:${{ github.sha }}'
-        env: |
-          MONGO_URI=${{ secrets.MONGO_URI }}
-          PORT=${{ secrets.PORT }}
-          DB_NAME=${{ secrets.DB_NAME }}
-          NODE_ENV=${{ secrets.NODE_ENV }}
-          ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
-          AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}

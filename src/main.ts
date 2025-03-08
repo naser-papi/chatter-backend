@@ -6,6 +6,9 @@ import { ConfigService } from "@nestjs/config";
 import * as cookieParser from "cookie-parser";
 
 async function bootstrap() {
+  console.info(
+    `>>>>>>>>>>>>>>>>>>>>>> START THE CHATTER APP BACKEND <<<<<<<<<<<<<<<<<<<<<<<<<<`,
+  );
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useGlobalPipes(new ValidationPipe());
   app.useLogger(app.get(Logger));
@@ -19,8 +22,12 @@ async function bootstrap() {
     allowedHeaders: "Content-Type, Authorization", // Define allowed headers
     methods: "GET,POST,PUT,DELETE,OPTIONS", // Define allowed HTTP methods
   });
-  const port = configSrv.getOrThrow("PORT") || 8181;
+  const port = configSrv.getOrThrow("PORT") || 8000;
   await app.listen(parseInt(port, 10));
+
+  console.info(
+    `>>>>>>>>>>>>>>>>>>>>>> Server started on port ${port}<<<<<<<<<<<<<<<<<<<<<<<<<<`,
+  );
 }
 
 bootstrap();
