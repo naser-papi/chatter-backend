@@ -17,7 +17,7 @@ export class UserDocument extends AbstractDocument {
   password: string;
 
   @Prop()
-  @Field()
+  @Field({ nullable: true })
   avatarUrl?: string;
 }
 
