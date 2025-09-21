@@ -20,10 +20,12 @@ jobs:
             --exclude='.env' --exclude='mongo.env'
             --exclude='mongo-init.js' --exclude='Caddyfile'
             --exclude='docker-compose.yml'
+            --exclude='storage/'             # ⬅️ keep persistent uploads on VPS
           SOURCE: .
           REMOTE_HOST: ${{ secrets.VPS_HOST }}
           REMOTE_USER: ${{ secrets.VPS_USER }}
           TARGET: ${{ secrets.VPS_PATH }}
+
 
 
       - name: Build and restart containers on VPS
