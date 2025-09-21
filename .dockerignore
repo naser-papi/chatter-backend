@@ -3,6 +3,11 @@
 *.userprefs
 *.usertasks
 
+#docker-compose
+docker-compose.yml
+mongo.env
+mongo-init.js
+
 #Mono Project Files
 *.pidb
 *.resources

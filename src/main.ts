@@ -4,6 +4,8 @@ import { ValidationPipe } from "@nestjs/common";
 import { Logger } from "nestjs-pino";
 import { ConfigService } from "@nestjs/config";
 import * as cookieParser from "cookie-parser";
+import { join } from "path";
+import * as express from "express";
 
 async function bootstrap() {
   console.info(
@@ -22,6 +24,9 @@ async function bootstrap() {
     allowedHeaders: "Content-Type, Authorization", // Define allowed headers
     methods: "GET,POST,PUT,DELETE,OPTIONS", // Define allowed HTTP methods
   });
+
+  app.use("/uploads", express.static(join(__dirname, "..", "storage/uploads")));
+
   const port = configSrv.getOrThrow("PORT") || 8000;
   await app.listen(parseInt(port, 10));
 

@@ -1,42 +1,45 @@
-// src/storage/storage.service.ts
+// src/common/storage/storage.service.ts
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import { ConfigService } from "@nestjs/config";
+import * as fs from "fs";
+import * as path from "path";
 
-@Injectable()
-export class StorageService {
+// Define a minimal interface for storage operations
+interface IStorageDriver {
+  uploadFile(fileBuffer: Buffer, blobName: string): Promise<string>;
+  downloadFile(blobName: string): Promise<Buffer>;
+}
+
+// Azure implementation (renamed)
+class AzureStorageService implements IStorageDriver {
   private blobServiceClient: BlobServiceClient;
   private containerClient: ContainerClient;
 
   constructor(private readonly configSrv: ConfigService) {
-    const connectionString = configSrv.get("AZURE_STORAGE_CONNECTION_STRING");
+    const connectionString = configSrv.get<string>(
+      "AZURE_STORAGE_CONNECTION_STRING",
+    );
     if (!connectionString) {
       throw new Error(
         "Azure Storage connection string not found in environment variables.",
       );
     }
-
-    // Initialize the BlobServiceClient
     this.blobServiceClient =
       BlobServiceClient.fromConnectionString(connectionString);
-    // Specify a container name (e.g., "uploads")
     this.containerClient = this.blobServiceClient.getContainerClient("chatter");
   }
 
-  // Ensure the container exists
-  async ensureContainerExists(): Promise<void> {
+  private async ensureContainerExists(): Promise<void> {
     const exists = await this.containerClient.exists();
     if (!exists) {
       await this.containerClient.create();
     }
   }
 
-  // Upload a file to the container
   async uploadFile(fileBuffer: Buffer, blobName: string): Promise<string> {
     try {
-      // Ensure the container exists before uploading
       await this.ensureContainerExists();
-
       const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.uploadData(fileBuffer);
       return blockBlobClient.url;
@@ -47,7 +50,6 @@ export class StorageService {
     }
   }
 
-  // Download a file from the container
   async downloadFile(blobName: string): Promise<Buffer> {
     try {
       const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
@@ -60,17 +62,80 @@ export class StorageService {
     }
   }
 
-  // Helper: Convert readable stream to Buffer
   private streamToBuffer(
     readableStream: NodeJS.ReadableStream,
   ): Promise<Buffer> {
     return new Promise((resolve, reject) => {
-      const chunks = [];
+      const chunks: Buffer[] = [];
       readableStream.on("data", (data) =>
-        chunks.push(data instanceof Buffer ? data : Buffer.from(data)),
+        chunks.push(data instanceof Buffer ? data : Buffer.from(data as any)),
       );
       readableStream.on("end", () => resolve(Buffer.concat(chunks)));
       readableStream.on("error", reject);
     });
+  }
+}
+
+// Local implementation
+class LocalStorageService implements IStorageDriver {
+  private readonly uploadDir: string;
+
+  constructor(private readonly configSrv: ConfigService) {
+    const defaultDir = "/app/storage/uploads";
+    this.uploadDir = configSrv.get<string>("UPLOAD_DIR") || defaultDir;
+  }
+
+  async uploadFile(fileBuffer: Buffer, blobName: string): Promise<string> {
+    try {
+      // Ensure directory exists
+      fs.mkdirSync(this.uploadDir, { recursive: true });
+      const filePath = path.join(this.uploadDir, blobName);
+      fs.writeFileSync(filePath, fileBuffer);
+
+      // Return a relative URL that the frontend or static server can map
+      // If UPLOADS_URL_PREFIX provided use it, else default to /uploads
+      const prefix =
+        this.configSrv.get<string>("UPLOADS_URL_PREFIX") || "/uploads";
+      return `${prefix}/${blobName}`.replace(/\\/g, "/");
+    } catch (error) {
+      throw new InternalServerErrorException("Error saving file locally.");
+    }
+  }
+
+  async downloadFile(blobName: string): Promise<Buffer> {
+    try {
+      const filePath = path.join(this.uploadDir, blobName);
+      return fs.readFileSync(filePath);
+    } catch (error) {
+      throw new InternalServerErrorException("Error reading local file.");
+    }
+  }
+}
+
+// Facade that selects the driver based on STORAGE_DRIVER
+@Injectable()
+export class StorageService implements IStorageDriver {
+  private driver: IStorageDriver;
+
+  constructor(private readonly configSrv: ConfigService) {
+    const selected = (
+      configSrv.get<string>("STORAGE_DRIVER") || "local"
+    ).toLowerCase();
+    if (selected === "azure") {
+      this.driver = new AzureStorageService(configSrv);
+    } else if (selected === "local") {
+      this.driver = new LocalStorageService(configSrv);
+    } else {
+      // default to local for safety
+      this.driver = new LocalStorageService(configSrv);
+    }
+  }
+
+  uploadFile(fileBuffer: Buffer, blobName: string): Promise<string> {
+    return this.driver.uploadFile(fileBuffer, blobName);
+  }
+
+  downloadFile(blobName: string): Promise<Buffer> {
+    return this.driver.downloadFile(blobName);
   }
 }

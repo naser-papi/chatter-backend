@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: [ .env ]
+    depends_on: [ mongo ]
+    restart: unless-stopped
+    volumes:
+      - ./storage/uploads:/app/storage/uploads
+    networks: [ appnet ]
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    env_file: [ mongo.env ]
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks: [ appnet ]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: [ "80:80","443:443" ]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [ app ]
+    networks: [ appnet ]
+
+volumes:
+  mongo_data:
+  caddy_data:
+  caddy_config:
+networks:
+  appnet:
+    driver: bridge
