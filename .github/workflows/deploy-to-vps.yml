@@ -14,11 +14,17 @@ jobs:
         uses: easingthemes/ssh-deploy@v5.1.0
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: -rltgoDz --delete --exclude='.git' --exclude='node_modules'
+          ARGS: >-
+            -rltgoDz --delete
+            --exclude='.git' --exclude='node_modules'
+            --exclude='.env' --exclude='mongo.env'
+            --exclude='mongo-init.js' --exclude='Caddyfile'
+            --exclude='docker-compose.yml'
           SOURCE: .
           REMOTE_HOST: ${{ secrets.VPS_HOST }}
           REMOTE_USER: ${{ secrets.VPS_USER }}
           TARGET: ${{ secrets.VPS_PATH }}
+
 
       - name: Build and restart containers on VPS
         uses: appleboy/ssh-action@v1.2.0
