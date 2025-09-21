@@ -23,7 +23,7 @@ import { Request } from "express";
         ALLOWED_ORIGINS: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRES_IN: Joi.string().required(),
-        AZURE_STORAGE_CONNECTION_STRING: Joi.string().required(),
+        AZURE_STORAGE_CONNECTION_STRING: Joi.string().optional(),
       }),
     }),
     DatabaseModule,
