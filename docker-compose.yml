@@ -9,7 +9,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./storage/uploads:/app/storage/uploads
-    networks: [ appnet ]
+    networks:
+      - appnet
 
   mongo:
     image: mongo:7
@@ -18,23 +19,28 @@ services:
     volumes:
       - mongo_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    networks: [ appnet ]
+    networks:
+      - appnet
 
   caddy:
     image: caddy:2
     restart: unless-stopped
-    ports: [ "80:80","443:443" ]
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on: [ app ]
-    networks: [ appnet ]
+    networks:
+      - appnet
 
 volumes:
   mongo_data:
   caddy_data:
   caddy_config:
+
 networks:
   appnet:
     driver: bridge
