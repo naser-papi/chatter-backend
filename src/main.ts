@@ -13,7 +13,9 @@ async function bootstrap() {
   );
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useGlobalPipes(new ValidationPipe());
+  console.info("useGlobalPipes Done");
   app.useLogger(app.get(Logger));
+  console.info("useLogger Done");
   app.use(cookieParser());
   const configSrv = app.get(ConfigService);
 
@@ -24,8 +26,11 @@ async function bootstrap() {
     allowedHeaders: "Content-Type, Authorization", // Define allowed headers
     methods: "GET,POST,PUT,DELETE,OPTIONS", // Define allowed HTTP methods
   });
+  console.info("enableCors Done");
 
   app.use("/uploads", express.static(join(__dirname, "..", "storage/uploads")));
+
+  console.info("uploads config Done");
 
   const port = configSrv.getOrThrow("PORT") || 8000;
   await app.listen(parseInt(port, 10));
