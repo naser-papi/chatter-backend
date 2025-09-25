@@ -16,6 +16,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: >-
             -rltgoDz --delete            
+            --exclude='.env' --exclude='mongo.env'            
             --exclude='storage/'             # ⬅️ keep persistent uploads on VPS
           SOURCE: .
           REMOTE_HOST: ${{ secrets.VPS_HOST }}
