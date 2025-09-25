@@ -13,7 +13,7 @@ services:
       - appnet
 
   mongo:
-    image: mongo:7
+    image: mongo:4.4
     restart: unless-stopped
     env_file: [ mongo.env ]
     volumes:
@@ -21,6 +21,12 @@ services:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - appnet
+    healthcheck:
+      test: [ "CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping').ok" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   caddy:
     image: caddy:2
