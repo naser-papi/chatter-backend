@@ -1,4 +1,4 @@
-name: Deploy NextJS to VPS
+name: Deploy Chatter NestJs Backend to VPS
 
 on:
   push:
