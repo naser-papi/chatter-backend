@@ -60,7 +60,7 @@ jobs:
           script: |
             set -e
             # Ensure the shared network exists
-            docker network create backend || true
+            # docker network create backend || true
             cd "${{ env.APP_DIR }}"
             docker compose pull
             docker compose up -d --remove-orphans
