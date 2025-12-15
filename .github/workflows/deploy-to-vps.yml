@@ -1,4 +1,4 @@
-name: Deploy Chatter NestJs Backend to the new VPS
+name: Deploy Chatter NestJs Backend
 
 on:
   push:
