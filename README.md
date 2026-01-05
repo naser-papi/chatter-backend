@@ -244,6 +244,22 @@ Open a PR with a clear description and screenshots/logs when relevant
 - Small features (message UI, chat UX, etc.)
 
 
+## 📄 License
+
+This project is licensed under the **MIT License** - a permissive open-source license that allows free use, modification, distribution, and contribution.
+
+### What this means:
+
+✅ **Free to use** - Anyone can use this project for any purpose, including commercial use  
+✅ **Free to modify** - You can change the code to suit your needs  
+✅ **Free to distribute** - You can share the original or modified code  
+✅ **Open for contributions** - All developers are welcome to contribute  
+
+### Requirements:
+
+- Include the original copyright notice and license text
+- Include a copy of the MIT License in distributions
+
 ## Full License Text
 
 ```
