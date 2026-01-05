@@ -19,6 +19,12 @@ export class UserDocument extends AbstractDocument {
   @Prop()
   @Field({ nullable: true })
   avatarUrl?: string;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserDocument);
