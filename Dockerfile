@@ -1,7 +1,7 @@
 # Stage 1: Build the application
 FROM node:20.11.1-alpine AS builder
 
-ENV NODE_ENV=development
+ENV NODE_ENV=production
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
